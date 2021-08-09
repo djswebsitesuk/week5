@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -17,9 +17,10 @@ interface DataObject {
   id: number;
   title: string;
   body: string;
-}
+};
 
-const data: DataObject[] = [
+/*const data: DataObject[] = 
+[
   {
     id: 1,
     title: 'post number 1',
@@ -35,7 +36,7 @@ const data: DataObject[] = [
     title: 'post number 3',
     body: 'some latin stuff 3'
   }
-]
+]*/
 
 const columns: ColumnDefinitionType<DataObject, keyof DataObject>[] = [
   {
@@ -45,10 +46,12 @@ const columns: ColumnDefinitionType<DataObject, keyof DataObject>[] = [
   {
     key: 'title',
     header: 'title text',
+    width: 400
   },
   {
     key: 'body',
-    header: 'body text'
+    header: 'body text',
+    width: 600
   }
 ]
 
@@ -116,7 +119,29 @@ return (
 );
 };
 
-function App() {
+function App(this: any) {
+  const [posts, setPosts] = useState([]);
+  const data: DataObject[] = []
+
+  const getData = async () => {
+    var dataResponse = fetch('https://jsonplaceholder.typicode.com/posts')
+      .then((response) => response.json())
+      .then(dataResponse => {
+        setPosts(dataResponse);
+      })
+  }
+
+  for (var i = 0; i < posts.length; i++) {
+    data[i] = posts[i];
+
+    let rows: Array<DataObject> = []
+    rows.push({/* userId: data[i].userId, */ id: data[i].id, title: data[i].title, body: data[i].body })
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
+
   return ( <Table data={data} columns={columns} />
   );
 }
