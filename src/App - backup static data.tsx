@@ -1,6 +1,10 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+//import TableHeader, {} from './tableHeader'
+//import TableRows, {} from './tableRows'
+//import TableProps from './tableProps'
+//import ColumnDefinitionType from './columnDefinition'
 
 type ColumnDefinitionType<T, K extends keyof T> = {
   key: K;
