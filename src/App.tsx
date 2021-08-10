@@ -50,11 +50,12 @@ const commentColumns: ColumnDefinitionType<CommentDataObject, keyof CommentDataO
   {
     key: 'postId',
     header: 'comment id',
+    width: 30
   },
   {
     key: 'email',
     header: 'email',
-    width: 400
+    width: 600
   },
   {
     key: 'body',
@@ -92,37 +93,16 @@ const TableHeader = <T, K extends keyof T>({ columns }: TableProps<T, K>): JSX.E
   );
 };
 
-const handleClick = async (e: any) => {
-  var dataResponseForPost = fetch(`https://jsonplaceholder.typicode.com/posts/${e}/comments`)
-    .then((response) => response.json())
-    .then(dataResponseForPost => {
-      showComments(dataResponseForPost);
-    })
-}
-
-const showComments = (comment: any) =>
-{
-  alert("I want to show table as boot strap alert");
-  let commentRow: Array<CommentDataObject> = []
-  const postData: CommentDataObject[] = []
-  for (var j = 0; j < comment.length; j++) {
-    postData[j] = comment[j];
-    var rowData = { id: postData[j].id, postId: postData[j].postId, name: postData[j].name, email: postData[j].email, body: postData[j].body }
-    commentRow.push(rowData)
-  }
-  return <Alert><Table data={postData} columns={commentColumns} /></Alert>
-}
-
 const TableRows = <T, K extends keyof T>({ data, columns}: TableProps<T, K>): JSX.Element => {
   const rows = data.map((row, index) => {
     return (
-      <tr key={`row-${index}`} onClick={() => handleClick(index)} >
+      <tr key={`row-${index}`}>
         {columns.map((column, index2) => {
           return (
             <td key={`cell-${index2}`} style={style}>
               {row[column.key]}
             </td>
-          );
+          )
         }
         )}
       </tr>
@@ -151,6 +131,9 @@ return (
 function App(this: any) {
   const [posts, setPosts] = useState([]);
   const data: DataObject[] = []
+  const [comment, setComment] = useState([]);
+  const postData: CommentDataObject[] = []
+  let commentRow: Array<CommentDataObject> = []
 
   const getData = async () => {
     var dataResponse = fetch('https://jsonplaceholder.typicode.com/posts')
@@ -160,7 +143,6 @@ function App(this: any) {
       })
   }
 
-
   for (var i = 0; i < posts.length; i++) {
     data[i] = posts[i];
 
@@ -168,11 +150,40 @@ function App(this: any) {
     rows.push({/* userId: data[i].userId, */ id: data[i].id, title: data[i].title, body: data[i].body })
   }
 
+  const handleClick = async (e: any) => {
+    var dataResponseForPost = fetch(`https://jsonplaceholder.typicode.com/posts/${e}/comments`)
+      .then((response) => response.json())
+      .then(dataResponseForPost => {
+        setComment(dataResponseForPost);
+      })
+  }
+  for (var j = 0; j < comment.length; j++) {
+    postData[j] = comment[j];
+    var rowData = { id: postData[j].id, postId: postData[j].postId, name: postData[j].name, email: postData[j].email, body: postData[j].body }
+    commentRow.push(rowData)
+  }
+
   useEffect(() => {
     getData()
   }, [])
 
-  return ( <Table data={data} columns={columns} />
+  const renderCommentsTable = () => {
+    if (commentRow.length > 1)
+      return (
+      <Table data={commentRow} columns={commentColumns}/>
+      )
+  }
+
+  return ( 
+    <div>
+      <div style={{ height: '100%', width: '100%' }} >
+        <Table data={data} columns={columns} />
+      </div>
+      <div>
+        {renderCommentsTable()}
+      </div>
+
+    </div>
   );
 }
 
