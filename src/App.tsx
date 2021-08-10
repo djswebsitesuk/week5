@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Alert from 'react-bootstrap/Alert'
 
 type ColumnDefinitionType<T, K extends keyof T> = {
   key: K;
@@ -19,24 +20,14 @@ interface DataObject {
   body: string;
 };
 
-/*const data: DataObject[] = 
-[
-  {
-    id: 1,
-    title: 'post number 1',
-    body: 'some latin stuff 1'
-  },
-  {
-    id: 2,
-    title: 'post number 2',
-    body: 'some latin stuff 2'
-  },
-  {
-    id: 3,
-    title: 'post number 3',
-    body: 'some latin stuff 3'
-  }
-]*/
+interface CommentDataObject {
+  id: number;
+  postId: number;
+  name: string;
+  email: string;
+  body: string;
+}
+
 
 const columns: ColumnDefinitionType<DataObject, keyof DataObject>[] = [
   {
@@ -51,6 +42,23 @@ const columns: ColumnDefinitionType<DataObject, keyof DataObject>[] = [
   {
     key: 'body',
     header: 'body text',
+    width: 600
+  }
+]
+
+const commentColumns: ColumnDefinitionType<CommentDataObject, keyof CommentDataObject>[] = [
+  {
+    key: 'postId',
+    header: 'comment id',
+  },
+  {
+    key: 'email',
+    header: 'email',
+    width: 400
+  },
+  {
+    key: 'body',
+    header: 'comment details',
     width: 600
   }
 ]
@@ -84,10 +92,31 @@ const TableHeader = <T, K extends keyof T>({ columns }: TableProps<T, K>): JSX.E
   );
 };
 
-const TableRows = <T, K extends keyof T>({ data, columns }: TableProps<T, K>): JSX.Element => {
+const handleClick = async (e: any) => {
+  var dataResponseForPost = fetch(`https://jsonplaceholder.typicode.com/posts/${e}/comments`)
+    .then((response) => response.json())
+    .then(dataResponseForPost => {
+      showComments(dataResponseForPost);
+    })
+}
+
+const showComments = (comment: any) =>
+{
+  alert("I want to show table as boot strap alert");
+  let commentRow: Array<CommentDataObject> = []
+  const postData: CommentDataObject[] = []
+  for (var j = 0; j < comment.length; j++) {
+    postData[j] = comment[j];
+    var rowData = { id: postData[j].id, postId: postData[j].postId, name: postData[j].name, email: postData[j].email, body: postData[j].body }
+    commentRow.push(rowData)
+  }
+  return <Alert><Table data={postData} columns={commentColumns} /></Alert>
+}
+
+const TableRows = <T, K extends keyof T>({ data, columns}: TableProps<T, K>): JSX.Element => {
   const rows = data.map((row, index) => {
     return (
-      <tr key={`row-${index}`}>
+      <tr key={`row-${index}`} onClick={() => handleClick(index)} >
         {columns.map((column, index2) => {
           return (
             <td key={`cell-${index2}`} style={style}>
@@ -130,6 +159,7 @@ function App(this: any) {
         setPosts(dataResponse);
       })
   }
+
 
   for (var i = 0; i < posts.length; i++) {
     data[i] = posts[i];
